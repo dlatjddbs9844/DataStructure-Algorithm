@@ -20,9 +20,9 @@
 <br>
 <div align=center>
   <p>🏆 Baekjoon solved rank 🏆</p>
-  [![Solved.ac
-프로필](http://mazassumnida.wtf/api/v2/generate_badge?boj=km9844)](https://solved.ac/km9844))
+  <img src="http://mazassumnida.wtf/api/v2/generate_badge?boj=km9844"/>
 </div>
+
 <br>
 <div align=center>
   <p>🌱</p>
