@@ -1,9 +1,42 @@
-
 import java.io.*;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.StringTokenizer;
 
+class AdjListNode{
+    int v;
+    int order;
+    AdjListNode next;
+
+    AdjListNode(int v, int order) {
+        this.v = v;
+        this.order = order;
+        this.next = null;
+    }
+}
+class AdjList{
+    AdjListNode first;
+    AdjListNode last;
+
+    public AdjList() {
+        this.first = null;
+        this.last = null;
+    }
+
+    public boolean isEmpty() {
+        return first == null;
+    }
+    public void insertAtEnd(int v, int order) {
+        AdjListNode newNode = new AdjListNode(v, order);
+        if(isEmpty()) {
+            first = last = newNode;
+        }
+        else {
+            last.next = newNode;
+            last = newNode;
+        }
+    }
+}
 class Node{
     int u;
     int v;
@@ -14,10 +47,12 @@ class Node{
 }
 
 public class Main {
+    static boolean[] visited;
     static int[] dfn;
+    static int[] low;
     static int order = 1;
+    static AdjList[] graph;
     static ArrayList<Node> answer;
-
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
@@ -27,24 +62,26 @@ public class Main {
         int E = Integer.parseInt(init.nextToken());
 
         dfn = new int[V+1];
+        low = new int[V+1];
+        visited = new boolean[V+1];
         answer = new ArrayList<>();
+        graph = new AdjList[V+1];
 
-        ArrayList<ArrayList<Integer>> graph = new ArrayList<>();
         for(int i = 0 ; i <= V; i++) {
-            graph.add(new ArrayList<>());
+            graph[i] = new AdjList();
         }
 
         for(int i = 0; i < E; i++) {
             StringTokenizer st = new StringTokenizer(br.readLine());
             int u = Integer.parseInt(st.nextToken());
             int v = Integer.parseInt(st.nextToken());
-            graph.get(u).add(v);
-            graph.get(v).add(u);
+            graph[u].insertAtEnd(v, i);
+            graph[v].insertAtEnd(u, i);
         }
 
         for (int i = 1; i <= V; i++) {
             if(dfn[i] == 0){
-                findCutEdge(i, 0, graph);
+                findCutEdge(i, 0);
             }
         }
 
@@ -62,25 +99,24 @@ public class Main {
         br.close();
     }
 
-    public static int findCutEdge(int u, int parent, ArrayList<ArrayList<Integer>> graph) {
-        dfn[u] = order++;
-        int ret = dfn[u];
+    public static void findCutEdge(int u, int parent) {
+        visited[u] = true;
+        dfn[u] = low[u] = order++;
 
-        for(int v : graph.get(u)){
-            if(v == parent) continue;
-            if(dfn[v] == 0){
-                int low = findCutEdge(v, u, graph);
-
+        for(AdjListNode cur = graph[u].first; cur != null; cur = cur.next){
+            if(cur.v == parent) continue;
+            if(!visited[cur.v]){
+                findCutEdge(cur.v, u);
+                low[u] = (low[cur.v] > low[u]) ? low[u] : low[cur.v];
                 // No back edge from u's descendant
-                if(low > dfn[u]){
-                    if(u > v) {
-                        answer.add(new Node(v, u));
+                if(low[cur.v] > dfn[u]){
+                    if(u > cur.v) {
+                        answer.add(new Node(cur.v, u));
                     }
                     else{
-                        answer.add(new Node(u, v));
+                        answer.add(new Node(u, cur.v));
                     }
                 }
-                ret = Math.min(ret, low);
             }
             // we are seeing back edge
             // during the dfs
@@ -88,10 +124,8 @@ public class Main {
             // if there is back edge -> low will be the smallest dfn that
             // can be reached by bback edge
             else{
-                ret = Math.min(ret, dfn[v]);
+                low[u] = (low[u] > dfn[cur.v]) ? dfn[cur.v] : low[u];
             }
         }
-
-        return ret;
     }
 }
