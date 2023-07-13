@@ -9,26 +9,25 @@ public class Main {
         StringTokenizer st = new StringTokenizer(br.readLine());
         int start = Integer.parseInt(st.nextToken());
         int end = Integer.parseInt(st.nextToken());
+        isPrime2(start, end);
+    }
+    
+    public static void isPrime2(int start, int end) {
+        boolean[] isntPrime = new boolean[end+1];
+        isntPrime[0] = isntPrime[1] = true;
+        for(int i = 2; i*i <= end; i++) {
+            if(!isntPrime[i]) {
+                for(int j = i * i; j <= end; j+=i) {
+                    isntPrime[j] = true;
+                }
+            }
+        }
+
         for(int i = start; i <= end; i++) {
-            if(isPrime(i)) {
+            if(isntPrime[i] == false) {
                 System.out.println(i);
             }
         }
-    }
-    public static boolean isPrime(int n) {
-        if(n <= 1) return false;
-        // 짝수 제외
-        if(n % 2 == 0) {
-            if (n == 2) return true;
-            else return false;
-        }
 
-        int sqrt = (int)Math.sqrt(n);
-        for(int i = 3; i <= sqrt; i+=2) {
-            if(n % i == 0) {
-                return false;
-            }
-        }
-        return true;
     }
 }
